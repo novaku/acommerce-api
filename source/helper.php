@@ -7,16 +7,25 @@
 class helper
 {
     /**
+     * @param $header
      * @param $method
      * @param $url
+     * @param $body
      * @return mixed|\Psr\Http\Message\ResponseInterface
      *
      * Helper of guzzle usage
      */
-    static function setClient($method, $url, $body)
+    static function setClient($header, $method, $url, $body)
     {
+        $header_init = [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-cache'
+            ]
+        ];
+        $header = $header ? array_merge_recursive($header_init, $header) : $header_init;
         $body = $body ? ['json' => $body] : [];
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client($header);
         return $client->request($method, $url, $body);
     }
 
@@ -31,15 +40,19 @@ class helper
      */
     static function generateToken($method, $url, $username, $key)
     {
-        $token = self::setClient($method, $url, [
-            'auth' => [
-                'apiKeyCredentials' => [
-                    'username' => $username,
-                    'apiKey' => $key
+        $auth_json = [
+            'auth' =>
+                [
+                    'apiKeyCredentials' =>
+                        [
+                            'username' => $username,
+                            'apiKey' => $key
+                        ]
                 ]
-            ]
-        ]);
-        $token = json_decode($token);
-        return $token['token'];
+        ];
+        $res = self::setClient([], $method, $url, $auth_json);
+        $response = json_decode($res->getBody(), true);
+
+        return $response['token']['token_id'];
     }
 }
