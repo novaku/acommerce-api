@@ -1,4 +1,5 @@
-#acommerce test
+aCommerce API pipe lining test
+==============================
 
 available for test :
 
@@ -15,3 +16,5 @@ available for test :
 `http://localhost/index.php?function=create_order`
 
 ___
+
+All the vendor library is commited also, so no need to do composer install, just run it
